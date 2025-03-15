@@ -1,0 +1,51 @@
+.sec_heading h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.session-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  /* display: flex; */
+  align-items: center;
+  gap: 15px;
+  transition: transform 0.3s ease-in-out;
+  margin-bottom: 20px;
+}
+
+.session-card:hover {
+  transform: scale(1.02);
+  -webkit-transform: scale(1.02);
+  -moz-transform: scale(1.02);
+  -ms-transform: scale(1.02);
+  -o-transform: scale(1.02);
+  cursor: pointer;
+}
+
+.session-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.session-content {
+  flex: 1;
+}
+
+.session-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.session-host {
+  font-size: 14px;
+  color: gray;
+}
+
+.session-time {
+  font-size: 14px;
+  color: #007bff;
+}

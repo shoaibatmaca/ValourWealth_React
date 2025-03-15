@@ -1,0 +1,41 @@
+.wealth-header {
+    font-weight: bold;
+    color: #6c5ce7;
+  }
+  
+  .wealth-subtext {
+    color: #6c757d;
+    font-size: 14px;
+  }
+  
+  .wealth-card {
+    background: #f8f9fa;
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+    color: #000;
+  }
+  
+  .wealth-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+  }
+  
+  .wealth-card h5 p {
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+  }
+  
+  .card-text {
+    font-size: 14px;
+    color: #6c757d;
+  }
+  
+  .btn-outline-primary {
+    border-radius: 20px;
+  }
+  
+  

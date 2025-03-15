@@ -1,0 +1,53 @@
+.academy-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  .lesson-info {
+    font-size: 0.9rem;
+    color: #007bff;
+  }
+  
+  .academy-card {
+    background-image: url(../images/video_card-overlay.png);
+    /* border-radius: 10px; */
+    padding: 20px;
+    color: white;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-top: 20px;
+    /* box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); */
+  }
+  
+  .academy-badge {
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  .academy-card-content h5 {
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+  
+  .academy-duration {
+    font-size: 0.9rem;
+  }
+  
+  .academy-footer {
+    text-align: left;
+  }
+  
+  .academy-link {
+    font-size: 0.9rem;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .academy-link:hover {
+    text-decoration: underline;
+  }
+  
