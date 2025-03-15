@@ -136,7 +136,7 @@ function DashboardData({ darkMode }) {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
   const accessToken = localStorage.getItem("accessToken");
-
+  
   useEffect(() => {
     if (!accessToken) {
       setError("You need to be logged in to view this data.");
