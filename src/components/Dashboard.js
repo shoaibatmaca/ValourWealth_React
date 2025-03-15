@@ -267,10 +267,11 @@
 // export default Dashboard;
 
 
+ 
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Menu, Search, Sun, Moon, Home, Tv, Building, Wrench, Book, Package, DollarSign, Gem, Star, GraduationCap, Users } from 'lucide-react';
+import { Menu, Sun, Moon, Home, Tv, Building, Wrench, Book, Package, DollarSign, Gem, Star, GraduationCap, Users } from 'lucide-react';
 import "../styles/dashboard.css";
 import HistoricalDataFlow from './DashboardSidebarComp/HistoricalDataFlow';
 import user_logo from "../assets/images/dashboard_logo.png";
@@ -285,6 +286,10 @@ import Mentorship from './DashboardSidebarComp/Mentorship';
 import WealthSeries from './DashboardSidebarComp/WealthSeries';
 import Resources from './DashboardSidebarComp/Resources';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL?.endsWith("/")
+  ? process.env.REACT_APP_API_URL
+  : process.env.REACT_APP_API_URL + "/";
+
 const Dashboard = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -294,86 +299,37 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const accessToken = localStorage.getItem("accessToken");
 
-  // Use environment variable for API base URL
-  const API_BASE_URL = process.env.REACT_APP_API_URL; // e.g. https://valourwealthdjango-production.up.railway.app/
-  // Updated user data endpoint
-  const USER_API_URL = `${API_BASE_URL}api/user/`;
-
-  // Apply CSS variables for dark mode
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.style.setProperty('--text-color', '#ffffff');
-      document.documentElement.style.setProperty('--background-color', '#000000');
-      document.documentElement.style.setProperty('--sidebar-color', '#000000');
-      document.documentElement.style.setProperty('--card-background', '#000000');
-      document.documentElement.style.setProperty('--input-background', '#222222');
-      document.documentElement.style.setProperty('--border-color', '#444444');
-    } else {
-      document.documentElement.style.setProperty('--text-color', '#000000');
-      document.documentElement.style.setProperty('--background-color', '#ffffff');
-      document.documentElement.style.setProperty('--sidebar-color', '#f8f9fa');
-      document.documentElement.style.setProperty('--card-background', '#ffffff');
-      document.documentElement.style.setProperty('--input-background', '#ffffff');
-      document.documentElement.style.setProperty('--border-color', '#dddddd');
-    }
+    document.documentElement.style.setProperty('--text-color', darkMode ? '#ffffff' : '#000000');
+    document.documentElement.style.setProperty('--background-color', darkMode ? '#000000' : '#ffffff');
   }, [darkMode]);
   
-  // Responsive behavior: auto-collapse sidebar on smaller screens
   useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-      if (window.innerWidth < 992) {
-        setSidebarCollapsed(true);
-      } else if (window.innerWidth >= 992) {
-        if (windowWidth < 992) {
-          setSidebarCollapsed(false);
-        }
-      }
-    };
-    
-    // Set initial state based on window width
-    handleResize();
-
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  useEffect(() => {
     if (!accessToken) {
       setError("You need to be logged in to view this data.");
       return;
     }
-
+    
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(USER_API_URL, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+        const response = await axios.get(`${API_BASE_URL}api/user/`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
         setUserData(response.data);
       } catch (error) {
-        console.error("Error fetching user data:", error);
-        if (error.response && error.response.status === 401) {
-          setError("Session expired or invalid. Please log in again.");
-          localStorage.removeItem("accessToken");
-        } else {
-          setError("Failed to fetch user data. Please try again later.");
-        }
+        setError("Session expired. Please log in again.");
+        localStorage.removeItem("accessToken");
       }
     };
-
-    fetchUserData();
     
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [windowWidth, accessToken]);
-  
-
-  // Handle tab click - collapse sidebar after selection on mobile
-  const handleTabClick = (tabId) => {
-    setActiveTab(tabId);
-    if (windowWidth < 992 && !sidebarCollapsed) {
-      setSidebarCollapsed(true);
-    }
-  };
+    fetchUserData();
+  }, [accessToken]);
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <Home size={20} /> },
@@ -388,134 +344,52 @@ const Dashboard = () => {
     { id: 'options-academy', label: 'Trading Academy', icon: <GraduationCap size={20} /> },
     { id: 'mentorship', label: '1 on 1 Mentorship', icon: <Users size={20} /> },
   ];
-  
-  const renderContent = () => {
-    return (
-      <div className={darkMode ? "dark-mode-content" : "light-mode-content"}>
-        {(() => {
-          switch (activeTab) {
-            case 'dashboard':
-              return <DashboardData darkMode={darkMode} />;
-            case 'historical-darkflow':
-              return <HistoricalDataFlow darkMode={darkMode} />;
-            case 'live-sessions':
-              return <LiveSessions darkMode={darkMode} />;
-            case 'Trade-products':
-              return <TradeProducts darkMode={darkMode} />;
-            case 'trading-tools':
-              return <LiveSessions darkMode={darkMode} />;
-            case 'emerald':
-              return <Emerald darkMode={darkMode} />;
-            case 'platinum':
-              return <Platinum darkMode={darkMode} />;
-            case 'options-academy':
-              return <OptionsAcademy darkMode={darkMode} />;
-            case 'wealth-series':
-              return <WealthSeries darkMode={darkMode} />;
-            case 'mentorship':
-              return <Mentorship darkMode={darkMode} />;
-            case 'resources':
-              return <Resources darkMode={darkMode} />;
-            default:
-              return null;
-          }
-        })()}
-      </div>
-    );
-  };
-  
+
   return (
     <div className={darkMode ? 'bg-dark text-white vh-100' : 'bg-light vh-100'}>
       <div className="row g-0">
-        {/* Sidebar */}
-        <div
-          className={`${sidebarCollapsed ? 'col-1' : 'col-3'} position-fixed h-100 border-end transition-width sidebar-mbl`}
-          style={{ 
-            backgroundColor: 'var(--background-color)', 
-            color: 'var(--text-color)' 
-          }}
-        >
-          {/* Sidebar Header */}
-          <div className="d-flex justify-content-between align-items-center border-bottom p-lg-3 p-sm-2 left-toggle">
-            {!sidebarCollapsed && (
-              <h4 className={`m-0 d-flex align-items-center ${darkMode ? 'text-white' : ''}`}>
-                <div className="sidebar_logo">
-                  <img src={valourWealth} alt="Logo" className="sidebar-logo obj_fit me-2" />
-                </div>
-              </h4>
-            )}
-            <button className={`btn btn-link p-0 ${darkMode ? 'text-white' : ''}`} onClick={() => setSidebarCollapsed(!sidebarCollapsed)}>
+        <div className={`${sidebarCollapsed ? 'col-1' : 'col-3'} position-fixed h-100 border-end`}>
+          <div className="d-flex justify-content-between align-items-center border-bottom p-3">
+            {!sidebarCollapsed && <img src={valourWealth} alt="Logo" className="sidebar-logo" />}
+            <button className="btn btn-link p-0" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}>
               <Menu />
             </button>
           </div>
-          
-          {/* Navigation Menu */}
           <div className="nav flex-column">
             {menuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleTabClick(item.id)}
-                className={`nav-link border-0 d-flex align-items-center justify-content-${sidebarCollapsed ? "center" : "start"} ${activeTab === item.id ? "active" : ""} ${darkMode ? 'text-white' : ''}`}
-                style={darkMode ? {color: 'white'} : {}} 
-              >
-                <span className="me-3" style={darkMode ? {color: 'white'} : {}}>{item.icon}</span>
-                {!sidebarCollapsed && (
-                  <div className="d-flex align-items-center justify-content-between flex-grow-1">
-                    <span style={darkMode ? {color: 'white'} : {}}>{item.label}</span>
-                    {item.isNew && <span className="badge bg-primary ms-2">NEW</span>}
-                  </div>
-                )}
+              <button key={item.id} className={`nav-link d-flex ${activeTab === item.id ? 'active' : ''}`} onClick={() => setActiveTab(item.id)}>
+                {item.icon} {!sidebarCollapsed && <span>{item.label}</span>}
               </button>
             ))}
           </div>
-
-          {/* Dark Mode Toggle */}
           <div className="position-absolute bottom-0 w-100 border-top">
-            <button 
-              onClick={() => setDarkMode(!darkMode)} 
-              className={`btn btn-link d-flex align-items-center w-100 text-decoration-none night-btn ${darkMode ? 'text-white' : ''}`}
-              style={darkMode ? {color: 'white'} : {}} 
-            >
-              {darkMode ? 
-                <Sun className="me-2" style={{color: 'white'}} /> : 
-                <Moon className="me-2" />
-              }
-              {!sidebarCollapsed && 
-                <span style={darkMode ? {color: 'white'} : {}}>
-                  {darkMode ? 'Light Mode' : 'Dark Mode'}
-                </span>
-              }
+            <button className="btn btn-link d-flex" onClick={() => setDarkMode(!darkMode)}>
+              {darkMode ? <Sun /> : <Moon />} {!sidebarCollapsed && <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>}
             </button>
           </div>
         </div>
-        
-        {/* Main Content Area */}
-        <div className={`${sidebarCollapsed ? 'col-11 offset-1' : 'col-9 offset-3'} transition-margin`}>
-          <div className="container-fluid py-lg-4 py-3" style={{ backgroundColor: 'var(--background-color)', color: 'var(--text-color)', minHeight: "100vh" }}>
-            {/* Header with Search */}
-            <div className="row mb-lg-4 mb-2 align-items-center dashboard-head">
-              <div className="col position-relative search-main">
-                <input
-                  type="text"
-                  className={`search_bar ${darkMode ? "dark-mode" : ""}`}
-                  placeholder="Search Tickers..."
-                />
-                <i className="fas fa-search search-icon"></i> 
+        <div className={`${sidebarCollapsed ? 'col-11 offset-1' : 'col-9 offset-3'}`}>
+          <div className="container-fluid py-4" style={{ backgroundColor: 'var(--background-color)', color: 'var(--text-color)', minHeight: "100vh" }}>
+            <div className="row mb-4 align-items-center">
+              <div className="col">
+                <input type="text" className="search_bar" placeholder="Search Tickers..." />
               </div>
-
               <div className="col-auto user_info">
                 <img src={user_logo} alt="Profile" className="rounded-circle" width="40" height="40" />
-                <div className='username_data'>
-                  <h5 className={`mb-0 ${darkMode ? 'text-white' : ''}`}>
-                    {userData ? userData.username : "Loading..."}
-                  </h5>
-                </div>
+                <h5>{userData ? userData.username : "Loading..."}</h5>
               </div>
             </div>
-            
-            {/* Content Card */}
-            <div className={darkMode ? '' : 'card bg-light text-dark right-bar'}>
-              {renderContent()}
+            <div className='card bg-light text-dark right-bar'>
+              {activeTab === 'dashboard' && <DashboardData darkMode={darkMode} />}
+              {activeTab === 'historical-darkflow' && <HistoricalDataFlow darkMode={darkMode} />}
+              {activeTab === 'live-sessions' && <LiveSessions darkMode={darkMode} />}
+              {activeTab === 'Trade-products' && <TradeProducts darkMode={darkMode} />}
+              {activeTab === 'emerald' && <Emerald darkMode={darkMode} />}
+              {activeTab === 'platinum' && <Platinum darkMode={darkMode} />}
+              {activeTab === 'options-academy' && <OptionsAcademy darkMode={darkMode} />}
+              {activeTab === 'wealth-series' && <WealthSeries darkMode={darkMode} />}
+              {activeTab === 'mentorship' && <Mentorship darkMode={darkMode} />}
+              {activeTab === 'resources' && <Resources darkMode={darkMode} />}
             </div>
           </div>
         </div>
@@ -523,6 +397,4 @@ const Dashboard = () => {
     </div>
   );
 };
-
 export default Dashboard;
-
